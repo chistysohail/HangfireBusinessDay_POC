@@ -35,6 +35,7 @@ using (var scope = app.Services.CreateScope())
     MyJobs.PerformImportantTask();
 }
 RecurringJob.AddOrUpdate(() => MyJobs2.PerformImportantTask(), "*/2 * * * *");
+RecurringJob.AddOrUpdate<MyJobClass>("myJob", x => x.MyJobMethod(), "*/2 * * * *");
 app.Run();
 
 // Custom Job Filter Attribute
@@ -153,7 +154,7 @@ public class MyJobs
 
 
 /*
- drop table[Test].[HangFire].AggregatedCounter
+drop table[Test].[HangFire].AggregatedCounter
 drop table [Test].[HangFire].Counter
 drop table [Test].[HangFire].Hash
 drop table [Test].[HangFire].Job
