@@ -11,7 +11,20 @@ namespace HangfireBusinessDay_POC
     // instance method filter 
     public class BusinessDay2FilterAttribute : JobFilterAttribute, IElectStateFilter
     {
-
+        public void OnStateElection(ElectStateContext context)
+        {
+            var enqueuedState = context.CandidateState as EnqueuedState;
+            if (enqueuedState != null)
+            {
+                var nextTimeToRun = GetNextBusinessDay(DateTime.UtcNow);
+                context.CandidateState = new ScheduledState(nextTimeToRun);
+            }
+        }
+        private bool IsBusinessDay(DateTime date)
+        {
+            // Business day is any weekday (Monday to Friday).
+            return date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday;
+        }
         private DateTime GetNextBusinessDay(DateTime currentDate)
         {
             // Check if today is a business day (Monday through Friday).
@@ -32,25 +45,8 @@ namespace HangfireBusinessDay_POC
             return new DateTime(nextBusinessDay.Year, nextBusinessDay.Month, nextBusinessDay.Day,
                                 currentDate.Hour, currentDate.Minute, currentDate.Second, DateTimeKind.Utc);
         }
-
-        private bool IsBusinessDay(DateTime date)
-        {
-            // Business day is any weekday (Monday to Friday).
-            return date.DayOfWeek != DayOfWeek.Saturday && date.DayOfWeek != DayOfWeek.Sunday;
-        }
-
-        // The OnStateElection method should look like this:
-        public void OnStateElection(ElectStateContext context)
-        {
-            var enqueuedState = context.CandidateState as EnqueuedState;
-            if (enqueuedState != null)
-            {
-                var nextTimeToRun = GetNextBusinessDay(DateTime.UtcNow);
-                context.CandidateState = new ScheduledState(nextTimeToRun);
-            }
-        }
-
-
+        
+        
 
 
 
